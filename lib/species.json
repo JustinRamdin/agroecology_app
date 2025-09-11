@@ -1,0 +1,12 @@
+[
+  { "id": "chataigne", "common_name": "Chataigne (Breadnut)", "scientific_name": "Artocarpus camansi", "native": false },
+  { "id": "breadfruit", "common_name": "Breadfruit", "scientific_name": "Artocarpus altilis", "native": false },
+  { "id": "coconut", "common_name": "Coconut", "scientific_name": "Cocos nucifera", "native": false },
+  { "id": "pomarac", "common_name": "Pomarac", "scientific_name": "Syzygium malaccense", "native": false },
+  { "id": "cocorite", "common_name": "Cocorite", "scientific_name": "Attalea maripa", "native": true },
+  { "id": "peewah", "common_name": "Peewah", "scientific_name": "Bactris gasipaes", "native": false },
+  { "id": "mango", "common_name": "Mango", "scientific_name": "Mangifera indica", "native": false },
+  { "id": "avocado", "common_name": "Avocado", "scientific_name": "Persea americana", "native": false },
+  { "id": "soursop", "common_name": "Soursop", "scientific_name": "Annona muricata", "native": false },
+  { "id": "guava", "common_name": "Guava", "scientific_name": "Psidium guajava", "native": false }
+]
