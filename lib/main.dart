@@ -10,6 +10,20 @@ import 'package:geolocator/geolocator.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 
+// Inlined species catalog (editable)
+const List<Map<String, dynamic>> kSpeciesData = [
+  { "id": "chataigne", "common_name": "Chataigne (Breadnut)", "scientific_name": "Artocarpus camansi", "native": false },
+  { "id": "breadfruit", "common_name": "Breadfruit", "scientific_name": "Artocarpus altilis", "native": false },
+  { "id": "coconut", "common_name": "Coconut", "scientific_name": "Cocos nucifera", "native": false },
+  { "id": "pomarac", "common_name": "Pomarac", "scientific_name": "Syzygium malaccense", "native": false },
+  { "id": "cocorite", "common_name": "Cocorite", "scientific_name": "Attalea maripa", "native": true },
+  { "id": "peewah", "common_name": "Peewah", "scientific_name": "Bactris gasipaes", "native": false },
+  { "id": "mango", "common_name": "Mango", "scientific_name": "Mangifera indica", "native": false },
+  { "id": "avocado", "common_name": "Avocado", "scientific_name": "Persea americana", "native": false },
+  { "id": "soursop", "common_name": "Soursop", "scientific_name": "Annona muricata", "native": false },
+  { "id": "guava", "common_name": "Guava", "scientific_name": "Psidium guajava", "native": false }
+];
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
@@ -47,6 +61,7 @@ class Species {
     required this.scientificName,
     required this.native,
   });
+
   factory Species.fromJson(Map<String, dynamic> j) => Species(
         id: j['id'],
         commonName: j['common_name'],
@@ -54,6 +69,8 @@ class Species {
         native: j['native'] == true,
       );
 }
+
+
 
 /// Planting record
 class Planting {
@@ -193,12 +210,11 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Future<void> _loadSpecies() async {
-    final jsonStr = await rootBundle.loadString('assets/species.json');
-    final data = json.decode(jsonStr) as List;
-    setState(() {
-      _speciesCatalog = data.map((e) => Species.fromJson(e)).toList();
-    });
-  }
+  // Use the inlined list instead of loading from assets
+  setState(() {
+    _speciesCatalog = kSpeciesData.map((e) => Species.fromJson(e)).toList();
+  });
+}
 
   Future<void> _loadSavedPlantings() async {
     final box = Hive.box('plantings');
