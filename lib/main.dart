@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -49,7 +48,7 @@ class AgroApp extends StatelessWidget {
   }
 }
 
-/// Simple species model loaded from assets/species.json
+/// Species model (built from inline list)
 class Species {
   final String id;
   final String commonName;
@@ -69,8 +68,6 @@ class Species {
         native: j['native'] == true,
       );
 }
-
-
 
 /// Planting record
 class Planting {
@@ -196,10 +193,14 @@ class _MapScreenState extends State<MapScreen> {
   final List<Planting> _plantings = [];
   List<Species> _speciesCatalog = [];
 
+  // Custom marker icon (loaded once)
+  BitmapDescriptor? _iconDefault;
+
   @override
   void initState() {
     super.initState();
     _loadSpecies();
+    _loadMarkerIcon();
     _loadSavedPlantings();
   }
 
@@ -209,12 +210,20 @@ class _MapScreenState extends State<MapScreen> {
     super.dispose();
   }
 
-  Future<void> _loadSpecies() async {
   // Use the inlined list instead of loading from assets
-  setState(() {
-    _speciesCatalog = kSpeciesData.map((e) => Species.fromJson(e)).toList();
-  });
-}
+  void _loadSpecies() {
+    setState(() {
+      _speciesCatalog = kSpeciesData.map((e) => Species.fromJson(e)).toList();
+    });
+  }
+
+  Future<void> _loadMarkerIcon() async {
+    final icon = await BitmapDescriptor.fromAssetImage(
+      const ImageConfiguration(size: Size(48, 48)),
+      'assets/icons/marker_default.png',
+    );
+    if (mounted) setState(() => _iconDefault = icon);
+  }
 
   Future<void> _loadSavedPlantings() async {
     final box = Hive.box('plantings');
@@ -238,6 +247,7 @@ class _MapScreenState extends State<MapScreen> {
     return Marker(
       markerId: MarkerId(p.id),
       position: LatLng(p.lat, p.lng),
+      icon: _iconDefault ?? BitmapDescriptor.defaultMarker, // use custom icon
       infoWindow: InfoWindow(
         title: title,
         snippet: snippet,
@@ -332,7 +342,6 @@ class _MapScreenState extends State<MapScreen> {
     await Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => PlantingDetailScreen(planting: p)),
     );
-    // reload updates or reflect changes if needed
     setState(() {}); // simple refresh for demo
   }
 
@@ -745,7 +754,8 @@ class _PlantingDetailScreenState extends State<PlantingDetailScreen> {
                       const SizedBox(height: 8),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(6),
-                        child: Image.file(File(u.photoPath!), height: 140, fit: BoxFit.cover),
+                        child: Image.file(File(u.photoPath!),
+                            height: 140, fit: BoxFit.cover),
                       ),
                     ],
                   ],
