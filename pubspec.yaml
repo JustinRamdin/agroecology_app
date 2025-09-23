@@ -35,18 +35,18 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   path_provider: ^2.1.5
-  image_picker: ^1.0.7
-  lottie: ^3.1.2
-
+  cupertino_icons: ^1.0.8
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.8
-
   image_picker: ^1.0.7
   # NEW (for animation)
   lottie: ^3.1.2
-
-
+  uuid: ^4.4.0
+  csv: ^6.0.0
+  share_plus: ^7.2.1
+  supabase_flutter: ^2.5.6
+  connectivity_plus: ^6.0.3  
+  mime: ^1.0.4
 
 dev_dependencies:
   flutter_test:
@@ -69,12 +69,12 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
-  assets:
+  #assets:
     # NEW: animation & marker icons
-    - assets/anim/plant_grow.json
-    - assets/icons/marker_default.png
-    - assets/icons/marker_fruit.png
-    - assets/icons/marker_native.png
+    #- assets/anim/plant_grow.json
+    #- assets/icons/marker_default.png
+    #- assets/icons/marker_fruit.png
+    #- assets/icons/marker_native.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:
