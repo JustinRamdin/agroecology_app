@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../map/map_screen.dart';
 import '../contributions/my_contributions_screen.dart';
 import '../community/community_screen.dart';
+import '../species/species_library_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -250,6 +251,15 @@ class HomeScreen extends StatelessWidget {
                     subtitle: item.$2,
                     icon: item.$3,
                     onTap: () {
+                      if (item.$1 == 'Species Library') {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const SpeciesLibraryScreen(),
+                          ),
+                        );
+                        return;
+                      }
+                      
                       if (item.$1 == 'Community') {
                         Navigator.of(context).push(
                           MaterialPageRoute(
