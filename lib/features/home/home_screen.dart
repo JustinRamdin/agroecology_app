@@ -5,6 +5,7 @@ import '../contributions/my_contributions_screen.dart';
 import '../community/community_screen.dart';
 import '../species/species_library_screen.dart';
 import '../missions/missions_screen.dart';
+import '../impact/impact_dashboard_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -261,7 +262,7 @@ class HomeScreen extends StatelessWidget {
                         return;
                       }
 
-                       if (item.$1 == 'Missions') {
+                      if (item.$1 == 'Missions') {
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (_) => const MissionsScreen(),
@@ -269,11 +270,20 @@ class HomeScreen extends StatelessWidget {
                         );
                         return;
                       }
-                      
+
                       if (item.$1 == 'Community') {
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (_) => const CommunityScreen(),
+                          ),
+                        );
+                        return;
+                      }
+
+                      if (item.$1 == 'Impact Dashboard') {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const ImpactDashboardScreen(),
                           ),
                         );
                         return;
