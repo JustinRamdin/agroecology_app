@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../dashboard/presentation/dashboard_screen.dart';
+import 'dashboard_screen.dart';
 import '../data/auth_repository.dart';
 import '../domain/user_profile.dart';
 import 'login_screen.dart';
