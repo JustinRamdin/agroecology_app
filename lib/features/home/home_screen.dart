@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../map/map_screen.dart';
 import '../contributions/my_contributions_screen.dart';
+import '../community/community_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -227,7 +228,7 @@ class HomeScreen extends StatelessWidget {
                     ),
                     (
                       'Community',
-                      'Leaderboards • teams • events',
+                      'Live activity • leaderboards • events',
                       Icons.groups,
                     ),
                     (
@@ -248,7 +249,17 @@ class HomeScreen extends StatelessWidget {
                     title: item.$1,
                     subtitle: item.$2,
                     icon: item.$3,
-                    onTap: () => _comingSoon(context, item.$1),
+                    onTap: () {
+                      if (item.$1 == 'Community') {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const CommunityScreen(),
+                          ),
+                        );
+                        return;
+                      }
+                      _comingSoon(context, item.$1);
+                    },
                   );
                 },
               ),
