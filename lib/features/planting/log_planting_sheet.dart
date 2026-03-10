@@ -4,13 +4,26 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:uuid/uuid.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-import '../../core/hive_setup.dart';       // getDeviceId()
-import '../../data/models.dart';          // Species, Planting
+import '../../core/hive_setup.dart'; // getDeviceId()
+import '../../data/models.dart'; // Species, Planting
 
 class PlantingForm extends StatefulWidget {
-  const PlantingForm({required this.speciesCatalog, super.key});
+  const PlantingForm({
+    required this.speciesCatalog,
+    this.fixedLocation,
+    this.fixedAccuracyM,
+    super.key,
+  });
+
   final List<Species> speciesCatalog;
+
+  /// If provided, we use this lat/lng instead of pulling GPS.
+  final LatLng? fixedLocation;
+
+  /// Optional accuracy for fixedLocation (meters).
+  final double? fixedAccuracyM;
 
   @override
   State<PlantingForm> createState() => _PlantingFormState();
@@ -73,29 +86,33 @@ class _PlantingFormState extends State<PlantingForm> {
       return;
     }
 
-    // Height (optional)
     final height = int.tryParse(_heightCtrl.text.trim());
 
-    // Get best-accuracy GPS right before saving
-    Position pos;
-    try {
-      pos = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.best,
-      );
-    } catch (_) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not get current location')),
-      );
-      return;
+    // Use fixedLocation if provided (from long-press), otherwise use GPS.
+    LatLng? loc = widget.fixedLocation;
+    double? accuracy = widget.fixedAccuracyM;
+
+    if (loc == null) {
+      try {
+        final pos = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.best,
+        );
+        loc = LatLng(pos.latitude, pos.longitude);
+        accuracy = pos.accuracy;
+      } catch (_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not get current location')),
+        );
+        return;
+      }
     }
 
-    // Build the full Planting record here
     final p = Planting(
       id: const Uuid().v4(),
       deviceId: getDeviceId(),
-      lat: pos.latitude,
-      lng: pos.longitude,
-      accuracyM: pos.accuracy, // meters
+      lat: loc.latitude,
+      lng: loc.longitude,
+      accuracyM: accuracy,
       speciesId: _species!.id,
       speciesName: _species!.commonName,
       assocCategory: _assocCategory!,
@@ -109,11 +126,13 @@ class _PlantingFormState extends State<PlantingForm> {
     );
 
     if (!mounted) return;
-    Navigator.of(context).pop(p); // return Planting to caller
+    Navigator.of(context).pop(p);
   }
 
   @override
   Widget build(BuildContext context) {
+    final fixed = widget.fixedLocation;
+
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.only(
@@ -130,11 +149,23 @@ class _PlantingFormState extends State<PlantingForm> {
               children: [
                 const Align(
                   alignment: Alignment.centerLeft,
-                  child: Text('Log Planting',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  child: Text(
+                    'Log Planting',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
+
+                if (fixed != null) ...[
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Pinned location: ${fixed.latitude.toStringAsFixed(6)}, ${fixed.longitude.toStringAsFixed(6)}',
+                      style: const TextStyle(fontSize: 12, color: Colors.black54),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
 
                 // Species
                 DropdownButtonFormField<Species>(
@@ -143,8 +174,10 @@ class _PlantingFormState extends State<PlantingForm> {
                     border: OutlineInputBorder(),
                   ),
                   items: widget.speciesCatalog
-                      .map((sp) =>
-                          DropdownMenuItem(value: sp, child: Text(sp.commonName)))
+                      .map((sp) => DropdownMenuItem(
+                            value: sp,
+                            child: Text(sp.commonName),
+                          ))
                       .toList(),
                   onChanged: (val) => setState(() => _species = val),
                 ),
