@@ -3,7 +3,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import 'core/hive_setup.dart';
 import 'core/superbase_client.dart';
-import 'features/home/home_screen.dart';
+import 'features/auth/data/auth_repository.dart';
+import 'features/auth/presentation/auth_gate.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -136,7 +137,7 @@ class AgroApp extends StatelessWidget {
         ),
       ),
 
-      home: const HomeScreen(),
+       home: AuthGate(repository: AuthRepository()),
     );
   }
 }
