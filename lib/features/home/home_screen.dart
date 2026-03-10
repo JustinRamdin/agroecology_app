@@ -129,42 +129,7 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 14),
-
-              // Primary actions
-              Row(
-                children: [
-                  Expanded(
-                    child: _PrimaryActionCard(
-                      title: 'Open Map',
-                      subtitle: 'Long-press to log • “Add Here” for GPS',
-                      icon: Icons.map,
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const MapScreen()),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _PrimaryActionCard(
-                      title: 'My Plantings',
-                      subtitle: 'View, export CSV, manage contributions',
-                      icon: Icons.inventory_2,
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const MyContributionsScreen(),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 18),
+             const SizedBox(height: 18),
 
               // Status strip
               Container(
@@ -193,15 +158,6 @@ class HomeScreen extends StatelessWidget {
 
               const SizedBox(height: 18),
 
-              Text(
-                'Coming Soon',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  color: deepText,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-              const SizedBox(height: 10),
-
               GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -214,6 +170,16 @@ class HomeScreen extends StatelessWidget {
                 itemCount: 6,
                 itemBuilder: (context, i) {
                   final items = [
+                       (
+                      'Open Map',
+                      'Long-press to log • “Add Here” for GPS',
+                      Icons.map,
+                    ),
+                    (
+                      'My Plantings',
+                      'View, export CSV, manage contributions',
+                      Icons.inventory_2,
+                    ),
                     (
                       'Species Library',
                       'Search, filter, native indicators',
@@ -234,16 +200,6 @@ class HomeScreen extends StatelessWidget {
                       'Live activity • leaderboards • events',
                       Icons.groups,
                     ),
-                    (
-                      'Offline Packs',
-                      'Preload maps for fieldwork',
-                      Icons.download_for_offline,
-                    ),
-                    (
-                      'QR / Tagging',
-                      'Tag trees & scan on revisit',
-                      Icons.qr_code_2,
-                    ),
                   ];
 
                   final item = items[i];
@@ -253,6 +209,21 @@ class HomeScreen extends StatelessWidget {
                     subtitle: item.$2,
                     icon: item.$3,
                     onTap: () {
+                      if (item.$1 == 'Open Map') {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const MapScreen()),
+                        );
+                        return;
+                      }
+
+                      if (item.$1 == 'My Plantings') {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const MyContributionsScreen(),
+                          ),
+                        );
+                        return;
+                      }
                       if (item.$1 == 'Species Library') {
                         Navigator.of(context).push(
                           MaterialPageRoute(
@@ -393,68 +364,6 @@ class _Pill extends StatelessWidget {
   }
 }
 
-class _PrimaryActionCard extends StatelessWidget {
-  const _PrimaryActionCard({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.onTap,
-  });
-
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-
-    return InkWell(
-      borderRadius: BorderRadius.circular(18),
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.78),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: const Color(0xFFB7E4C7)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 16,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon, color: cs.primary, size: 28),
-            const SizedBox(height: 10),
-            Text(
-              title,
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: const Color(0xFF1B5E20),
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              subtitle,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: const Color(0xFF2F5D3A),
-                height: 1.2,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class _FeatureCard extends StatelessWidget {
   const _FeatureCard({
