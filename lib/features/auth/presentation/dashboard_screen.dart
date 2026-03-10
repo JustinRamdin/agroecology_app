@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import '../../auth/application/permission_service.dart';
 import '../../auth/data/auth_repository.dart';
 import '../../auth/domain/user_profile.dart';
-import '../../groups/presentation/create_group_screen.dart';
+import 'create_group_screen.dart';
 import '../../home/home_screen.dart';
-import '../../organizations/presentation/create_organization_screen.dart';
+import 'create_organization.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({
