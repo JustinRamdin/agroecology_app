@@ -8,7 +8,11 @@ class SyncQueue {
   /// Process queued plantings (created when online sync failed).
   static Future<void> processPlantings() async {
     final box = Hive.box('outbox_plantings');
+    final meta = Hive.box('meta');
+    await meta.put('last_sync_attempt_at', DateTime.now().toIso8601String());
+
     final keys = box.keys.toList(); // stable snapshot
+    int successCount = 0;
     for (final k in keys) {
       final raw = Map<String, dynamic>.from(box.get(k));
       final p = Planting.fromMap(raw);
@@ -34,16 +38,26 @@ class SyncQueue {
 
         await SyncService.upsertPlanting(toSend);
         await box.delete(k); // success → remove from outbox
+        successCount += 1;
       } catch (_) {
         // leave in queue; we'll retry later
       }
     }
+
+    if (successCount > 0) {
+      await meta.put('last_sync_success_at', DateTime.now().toIso8601String());
+    }
+    await meta.put('last_sync_plantings_success_count', successCount);
   }
 
   /// Process queued status updates.
   static Future<void> processUpdates() async {
     final box = Hive.box('outbox_updates');
+    final meta = Hive.box('meta');
+    await meta.put('last_sync_attempt_at', DateTime.now().toIso8601String());
+
     final keys = box.keys.toList();
+    int successCount = 0;
     for (final k in keys) {
       final raw = Map<String, dynamic>.from(box.get(k));
       final u = StatusUpdate.fromMap(raw);
@@ -54,10 +68,16 @@ class SyncQueue {
 
         await SyncService.insertUpdate(u);
         await box.delete(k);
+        successCount += 1;
       } catch (_) {
         // keep it; retry later
       }
     }
+
+    if (successCount > 0) {
+      await meta.put('last_sync_success_at', DateTime.now().toIso8601String());
+    }
+    await meta.put('last_sync_updates_success_count', successCount);
   }
 
   /// Convenience

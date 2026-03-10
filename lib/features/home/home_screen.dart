@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 import '../map/map_screen.dart';
 import '../contributions/my_contributions_screen.dart';
@@ -132,28 +133,69 @@ class HomeScreen extends StatelessWidget {
              const SizedBox(height: 18),
 
               // Status strip
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.75),
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: const Color(0xFFB7E4C7)),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.cloud_done, color: cs.primary),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        'Sync ready • Local-first storage enabled • Photos upload when online',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: midText,
-                          fontWeight: FontWeight.w600,
+                ValueListenableBuilder(
+                valueListenable: Hive.box('outbox_plantings').listenable(),
+                builder: (context, _, __) {
+                  return ValueListenableBuilder(
+                    valueListenable: Hive.box('outbox_updates').listenable(),
+                    builder: (context, __, ___) {
+                      final meta = Hive.box('meta');
+                      final queuedPlantings = Hive.box('outbox_plantings').length;
+                      final queuedUpdates = Hive.box('outbox_updates').length;
+                      final queuedTotal = queuedPlantings + queuedUpdates;
+
+                      final lastSyncAtRaw = meta.get('last_sync_success_at') as String?;
+                      final lastSyncAt = lastSyncAtRaw == null
+                          ? null
+                          : DateTime.tryParse(lastSyncAtRaw)?.toLocal();
+
+                      final statusText = queuedTotal == 0
+                          ? 'Sync healthy • Local-first storage enabled'
+                          : 'Queued for sync: $queuedTotal (plantings: $queuedPlantings, updates: $queuedUpdates)';
+
+                      return Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.75),
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(color: const Color(0xFFB7E4C7)),
                         ),
-                      ),
-                    ),
-                  ],
-                ),
+                      child: Row(
+                          children: [
+                            Icon(
+                              queuedTotal == 0 ? Icons.cloud_done : Icons.cloud_upload,
+                              color: cs.primary,
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    statusText,
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      color: midText,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    lastSyncAt == null
+                                        ? 'No successful sync yet'
+                                        : 'Last successful sync: ${_formatSyncTime(lastSyncAt)}',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: midText.withOpacity(0.85),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
               ),
 
               const SizedBox(height: 18),
@@ -334,6 +376,15 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+String _formatSyncTime(DateTime dt) {
+  final y = dt.year;
+  final m = dt.month.toString().padLeft(2, '0');
+  final d = dt.day.toString().padLeft(2, '0');
+  final hh = dt.hour.toString().padLeft(2, '0');
+  final mm = dt.minute.toString().padLeft(2, '0');
+  return '$y-$m-$d $hh:$mm';
 }
 
 class _Pill extends StatelessWidget {

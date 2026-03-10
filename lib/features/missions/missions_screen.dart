@@ -3,6 +3,7 @@ import 'package:hive/hive.dart' show Box;
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '../../data/models.dart';
+import '../../data/species_catalog.dart';
 import '../map/map_screen.dart';
 
 class MissionsScreen extends StatelessWidget {
@@ -11,6 +12,11 @@ class MissionsScreen extends StatelessWidget {
   static const int _monthlyGoal = 25;
   static const int _nativeGoal = 12;
   static const int _newAreasGoal = 5;
+
+  static final Set<String> _nativeSpeciesIds = {
+    for (final row in kSpeciesData)
+      if (row['native'] == true) row['id'] as String,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +32,9 @@ class MissionsScreen extends StatelessWidget {
               .toList();
 
           final monthPlantings = _currentMonthPlantings(plantings);
-          final nativeCount = monthPlantings.where((p) => _isNativeLikely(p.speciesName)).length;
+           final nativeCount = monthPlantings
+              .where((p) => _nativeSpeciesIds.contains(p.speciesId))
+              .length;
           final exploredAreas = monthPlantings
               .map((p) => '${p.lat.toStringAsFixed(2)},${p.lng.toStringAsFixed(2)}')
               .toSet()
@@ -46,7 +54,7 @@ class MissionsScreen extends StatelessWidget {
               const SizedBox(height: 12),
               _MissionProgressCard(
                 title: 'Native species push',
-                subtitle: 'Record at least $_nativeGoal native-friendly species entries.',
+                subtitle: 'Record at least $_nativeGoal native species entries.',
                 progress: nativeCount / _nativeGoal,
                 current: nativeCount,
                 goal: _nativeGoal,
@@ -105,11 +113,6 @@ class MissionsScreen extends StatelessWidget {
       final date = p.plantedAt.toLocal();
       return date.year == now.year && date.month == now.month;
     }).toList();
-  }
-
-  static bool _isNativeLikely(String speciesName) {
-    final s = speciesName.toLowerCase();
-    return s.contains('native') || s.contains('mango') || s.contains('cedar') || s.contains('balata');
   }
 }
 
